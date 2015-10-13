@@ -2,6 +2,7 @@ __author__ = 'Group 48'
 from nltk import RegexpTokenizer
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
+import nltk.data
 
 class TextModifier():
 

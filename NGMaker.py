@@ -1,7 +1,6 @@
 from __future__ import division
 #hsd
 from nltk.util import ngrams
-
 from nltk.probability import FreqDist, SimpleGoodTuringProbDist
 
 class NGMaker():
@@ -18,7 +17,7 @@ class NGMaker():
         #print (pdist)
 
         #hashhash
-        print(freqList)
+        #print(freqList)
         return freqList
 
     def _setBigram(self, listInput):
@@ -30,17 +29,16 @@ class NGMaker():
 
         sgtBig = SimpleGoodTuringProbDist(bigramFreq)
 
-
         for bigram in bigramFreq:
             b = bigram[0]
             #print(b)
             if b in outerBigram :
                 innerBigram1 = outerBigram[b]
-                innerBigram1[b] = (sgtBig.prob(bigram)/size)
+                innerBigram1[b] = (sgtBig.prob(bigram))
                 # print(bigramFreq[bigram]/size)
             else:
                 innerBigram = {}
-                innerBigram[bigram[1]] = (sgtBig.prob(bigram)/size)
+                innerBigram[bigram[1]] = (sgtBig.prob(bigram))
                 outerBigram[b] = innerBigram
                 #print(bigramFreq[bigram]/size)
 
@@ -58,11 +56,11 @@ class NGMaker():
             b = trigram[0:2]
             if b in outerTrigram:
                 innerTrigram = outerTrigram[b]
-                innerTrigram[b] = (sgtTri.prob(trigram)/size)
+                innerTrigram[b] = (sgtTri.prob(trigram))
             else:
                 innerTrigram = {}
                 #print(trigram[2])
-                innerTrigram[trigram[2]] = (sgtTri.prob(trigram)/size)
+                innerTrigram[trigram[2]] = (sgtTri.prob(trigram))
                 outerTrigram[b] = innerTrigram
 
         return outerTrigram
