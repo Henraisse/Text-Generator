@@ -1,5 +1,4 @@
 from __future__ import division
-#hsd
 from nltk.util import ngrams
 from nltk.probability import FreqDist, SimpleGoodTuringProbDist
 
@@ -31,17 +30,19 @@ class NGMaker():
 
         for bigram in bigramFreq:
             b = bigram[0]
-            #print(b)
+            #print(bigram)
             if b in outerBigram :
                 innerBigram1 = outerBigram[b]
-                innerBigram1[b] = (sgtBig.prob(bigram))
+                innerBigram1[bigram[1]] = (sgtBig.prob(bigram))
                 # print(bigramFreq[bigram]/size)
             else:
                 innerBigram = {}
+                #print(bigram[1])
                 innerBigram[bigram[1]] = (sgtBig.prob(bigram))
                 outerBigram[b] = innerBigram
                 #print(bigramFreq[bigram]/size)
 
+        #print(outerBigram['fighter'])
         return outerBigram
 
     def _setTrigram(self, listInput):
@@ -56,7 +57,7 @@ class NGMaker():
             b = trigram[0:2]
             if b in outerTrigram:
                 innerTrigram = outerTrigram[b]
-                innerTrigram[b] = (sgtTri.prob(trigram))
+                innerTrigram[trigram[2]] = (sgtTri.prob(trigram))
             else:
                 innerTrigram = {}
                 #print(trigram[2])
@@ -88,8 +89,5 @@ class NGMaker():
             map[j] = float(v/size)
         return map
 
-    #makes a dictionary with word as key and a dictionary with common fallowing words as a value
-    def makeAProbMapBigram(self):
-        map = {}
 
 
