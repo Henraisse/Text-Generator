@@ -65,3 +65,81 @@ def fillInTheInput(self, tag, templateSentLem, templateSent, corpusSents, tagged
             templetSentLem[i] = mostProbWordWithTag                                                #continue to the next taggedInput
             return self.buildLeft(taggedCorpus, mostProbWordWithTag, templetSentLem, bigram, trigram, i, j)    #rerun the recursion
         return templetSentLem
+
+
+
+
+
+
+
+
+
+
+        def buildRightTri(self, taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, j, bool):
+        i = i+1
+        #find one word with bigram
+        if i >= 1:
+            #print('end of sent')
+            return templateSentLem
+        #take the word and the next word tuples, send them as templateSentLem
+        if bool == True:
+            tupleOne = templateSentLem[i-1]
+            tupleTwo = templateSentLem[i]
+            listToUseForBigram = [tupleOne,tupleTwo]
+            firstTupleForTrigram = self.buildRight(taggedCorpus, taggedInput, listToUseForBigram, templateSent, bigramc, trigram, 0, -1)
+            templateSentLem[i] = firstTupleForTrigram[1]
+            bool = False
+
+
+        tuple1 = templateSentLem[i]
+        wordTag = tuple1[1]
+        word1 = tuple1[0]
+        #print wordTag
+        nwlSameToken = []
+
+        if word1 in stopwords.words('english'):#{'TO', 'WP','-NONE-','WDT','CC','PRP','IN','VBP'}:
+            #print('hoppar stopordet')
+            return self.buildRghtTri(taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, j, True)
+        else:
+            word2 =
+            if word1 in bigramc:
+                nextWordList = bigramc[word1]
+                #print(nextWordList),'nextwordlist'
+
+                for w in nextWordList:
+                    #print w, 'finns i listan'
+                    if pos_tag(w[0]) == wordTag:
+                        nwlSameToken.append(w)
+                        #print(nwlSameToken), 'all the words with same token'
+            else:
+                #todo, we should handle this in some other way
+               # print 'No such key', word1
+                return self.buildLeft(taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, j)
+        #get the inner dictionary for the input word
+        #TODO i think that this never happens, i donn
+
+        #if no words with the right Tag exist in the list of the words that use to follow
+        if len(nwlSameToken) == 0:
+            tag = wordTag
+            mostProbWord = self.randomWordWithRightTag(taggedCorpus, wordTag)
+            templateSentLem[i] = mostProbWord
+            #print mostProbWord[0]
+            #print 'no next word'
+            return self.buildLeft(taggedCorpus, mostProbWord, templateSentLem, templateSent, bigramc, trigram, i, j)
+            #print(tag_templet)
+        #If there are words and we choose the most probable one
+        else:
+            sortedNextWordList = sorted(nextWordList.items(), key = operator.itemgetter(1))
+            wordWithProb = sortedNextWordList[j]
+            mostProbWordWithTag = pos_tag(wordWithProb[0])
+            #the word is put in the telmpet
+            templateSentLem[i] = mostProbWordWithTag
+            #continue to the next word
+            #print 'go on'
+            return self.buildLeft(taggedCorpus, mostProbWordWithTag, templateSentLem, templateSent, bigramc, trigram, i, j)
+        #print('jag returnerar', templateSentLem)
+        return templateSentLem
+
+
+
+
