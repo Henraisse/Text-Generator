@@ -1,8 +1,6 @@
 __author__ = 'Group 48'
 from nltk import RegexpTokenizer
-from nltk.stem.snowball import SnowballStemmer
 from nltk.corpus import stopwords
-import string
 from nltk.stem import WordNetLemmatizer
 
 class TextModifier():
@@ -28,8 +26,8 @@ class TextModifier():
         # http://snowball.tartarus.org/
 
         wnl = WordNetLemmatizer()
-        stemmedText = [wnl.lemmatize(textInput) for textInput in textInputs]
-        return stemmedText
+        lemText = [wnl.lemmatize(textInput) for textInput in textInputs]
+        return lemText
     def removeStopWords(self, textInputs):
         filtered_words = [word for word in textInputs if word not in stopwords.words('english')]
         return filtered_words
