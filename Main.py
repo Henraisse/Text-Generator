@@ -7,6 +7,8 @@ from nltk import word_tokenize
 import operator
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+import sys
+
 
 
 __author__ = 'Group 48'
@@ -66,6 +68,27 @@ class Main:
 
         return corpusWordTuple
 
+    def fillInTheInput(self, tag, templateSentLem, templateSent, corpusSents, taggedInput):
+        notFound = True
+
+        while notFound:
+            i = 0
+            for tupl in templateSentLem:
+                #print(tag),'tag'
+                #print(tupl[1]),'tupl1'
+                if tag == tupl[1]:
+                    templateSentLem[i] = taggedInput[0]
+                    notFound = False
+                    break
+                i = i+1
+            if notFound == True:
+                templateSentLem, templateSent  = self.findTemplet(corpusSents)
+
+        #print(templateSent)
+        return templateSentLem, templateSent, i
+
+
+
     def buildRight(self, taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, j):#tokenzc, word, tag_templet, bigram, trigram, i, j):
         "This function builds the right side of the sentence"
         #the place where we did put the input is i
@@ -87,16 +110,16 @@ class Main:
         else:
             if word1 in bigramc:
                 nextWordList = bigramc[word1]
-                print(nextWordList),'nextwordlist'
+                #print(nextWordList),'nextwordlist'
 
                 for w in nextWordList:
                     #print w, 'finns i listan'
                     if pos_tag(w[0]) == wordTag:
                         nwlSameToken.append(w)
-                        print(nwlSameToken), 'all the words with same token'
+                        #print(nwlSameToken), 'all the words with same token'
             else:
                 #todo, we should handle this in some other way
-                print 'No such key', word1
+                #print 'No such key', word1
                 return self.buildRight(taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, j)
         #get the inner dictionary for the input word
         #TODO i think that this never happens, i donn
@@ -107,7 +130,7 @@ class Main:
             mostProbWord = self.randomWordWithRightTag(taggedCorpus, wordTag)
             templateSentLem[i] = mostProbWord
             #print mostProbWord[0]
-            print 'no next word'
+            #print 'no next word'
             return self.buildRight(taggedCorpus, mostProbWord, templateSentLem, templateSent, bigramc, trigram, i, j)
             #print(tag_templet)
         #If there are words and we choose the most probable one
@@ -118,30 +141,14 @@ class Main:
             #the word is put in the telmpet
             templateSentLem[i] = mostProbWordWithTag
             #continue to the next word
-            print 'go on'
+            #print 'go on'
             return self.buildRight(taggedCorpus, mostProbWordWithTag, templateSentLem, templateSent, bigramc, trigram, i, j)
-        print('jag returnerar', templateSentLem)
+        #print('jag returnerar', templateSentLem)
         return templateSentLem
 
 
-    def fillInTheInput(self, tag, templateSentLem, templateSent, corpusSents, taggedInput):
-        notFound = True
 
-        while notFound:
-            i = 0
-            for tupl in templateSentLem:
-                print(tag),'tag'
-                print(tupl[1]),'tupl1'
-                if tag == tupl[1]:
-                    templateSentLem[i] = taggedInput[0]
-                    notFound = False
-                    break
-                i = i+1
-            if notFound == True:
-                templateSentLem, templateSent  = self.findTemplet(corpusSents)
 
-        #print(templateSent)
-        return templateSentLem, templateSent, i
 
 
 
@@ -152,6 +159,65 @@ class Main:
         #anropa en funktion som fixar grejer med trigram, den ska fylla pa resten
         #misslyckas den sa ska den ner till bigram
         # sen ska vi fixa vanster sida av meningen med hjalp av Jennys grejer
+
+    def buildLeft(self, taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, j):#tokenzc, word, tag_templet, bigram, trigram, i, j):
+        "This function builds the right side of the sentence"
+        #the place where we did put the input is i
+        i = i-1
+        #basecase, if the input is in the end of the template
+        if i <= -1:
+            #print('end of sent')
+            return templateSentLem
+        #print(templateSentLem[i]),'test'
+        tuple1 = templateSentLem[i]
+        wordTag = tuple1[1]
+        word1 = tuple1[0]
+        print wordTag
+        nwlSameToken = []
+
+        if word1 in stopwords.words('english'):#{'TO', 'WP','-NONE-','WDT','CC','PRP','IN','VBP'}:
+            #print('hoppar stopordet')
+            return self.buildLeft(taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, j)
+        else:
+            if word1 in bigramc:
+                nextWordList = bigramc[word1]
+                #print(nextWordList),'nextwordlist'
+
+                for w in nextWordList:
+                    #print w, 'finns i listan'
+                    if pos_tag(w[0]) == wordTag:
+                        nwlSameToken.append(w)
+                        #print(nwlSameToken), 'all the words with same token'
+            else:
+                #todo, we should handle this in some other way
+               # print 'No such key', word1
+                return self.buildLeft(taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, j)
+        #get the inner dictionary for the input word
+        #TODO i think that this never happens, i donn
+
+        #if no words with the right Tag exist in the list of the words that use to follow
+        if len(nwlSameToken) == 0:
+            tag = wordTag
+            mostProbWord = self.randomWordWithRightTag(taggedCorpus, wordTag)
+            templateSentLem[i] = mostProbWord
+            #print mostProbWord[0]
+            #print 'no next word'
+            return self.buildLeft(taggedCorpus, mostProbWord, templateSentLem, templateSent, bigramc, trigram, i, j)
+            #print(tag_templet)
+        #If there are words and we choose the most probable one
+        else:
+            sortedNextWordList = sorted(nextWordList.items(), key = operator.itemgetter(1))
+            wordWithProb = sortedNextWordList[j]
+            mostProbWordWithTag = pos_tag(wordWithProb[0])
+            #the word is put in the telmpet
+            templateSentLem[i] = mostProbWordWithTag
+            #continue to the next word
+            #print 'go on'
+            return self.buildLeft(taggedCorpus, mostProbWordWithTag, templateSentLem, templateSent, bigramc, trigram, i, j)
+        #print('jag returnerar', templateSentLem)
+        return templateSentLem
+
+
 
 
 def main():
@@ -205,7 +271,11 @@ def main():
 
     dummyTag = taggedInput[0]
     inputTag = dummyTag[1]
-    print(inputTag)
+    #print(inputTag)
+
+    copyOfCorpus = lemmedCorpus[:]
+    copyOfCorpus.reverse()
+    bwCorpus = copyOfCorpus
 
     #make the bi and trigrams
     nm = NGMaker(lemmedCorpus)
@@ -214,8 +284,9 @@ def main():
     trigram = nm._setTrigram(lemmedCorpus)
 
 
-    bigramBackW = nm._setBigram(lemmedCorpus.reverse())
-    trigramBackW = nm._setTrigram(lemmedCorpus.reverse())
+    #print(bwCorpus)
+    bigramBackW = nm._setBigram(bwCorpus)
+    #trigramBackW = nm._setTrigram(lemmedCorpus.reverse())
 
     print('Your input data is:')
     print(taggedInput)
@@ -228,7 +299,11 @@ def main():
     #build the part of sentence that comes after the input word
     rightSent = m.buildRight(taggedCorpus, taggedInput, templateSentLem, templateSent, bigramc, trigram, i, -1)
 
-    print 'The Result', rightSent
+    resultSent = m.buildLeft(taggedCorpus, taggedInput, rightSent, templateSent, bigramBackW, trigram, i, -1)
 
+    print 'The Result', resultSent
+    for tuple in resultSent:
+        sys.stdout.write(tuple[0])
+        sys.stdout.write(" ")
 
 if __name__ == '__main__':main()
