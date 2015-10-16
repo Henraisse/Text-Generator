@@ -13,10 +13,7 @@ class NGMaker():
         self._uniGram = listInput
 
         freqList = self._setuFdist()
-        #print (pdist)
 
-        #hashhash
-        #print(freqList)
         return freqList
 
     def _setBigram(self, listInput):
@@ -30,19 +27,13 @@ class NGMaker():
 
         for bigram in bigramFreq:
             b = bigram[0]
-            #print(bigram)
             if b in outerBigram :
                 innerBigram1 = outerBigram[b]
                 innerBigram1[bigram[1]] = (sgtBig.prob(bigram))
-                # print(bigramFreq[bigram]/size)
             else:
                 innerBigram = {}
-                #print(bigram[1])
                 innerBigram[bigram[1]] = (sgtBig.prob(bigram))
                 outerBigram[b] = innerBigram
-                #print(bigramFreq[bigram]/size)
-
-        #print(outerBigram['fighter'])
         return outerBigram
 
     def _setTrigram(self, listInput):
@@ -55,24 +46,20 @@ class NGMaker():
 
         for trigram in trigramFreq:
             b = trigram[0:2]
-            #print b
             if b in outerTrigram:
                 innerTrigram = outerTrigram[b]
                 innerTrigram[trigram[2]] = (sgtTri.prob(trigram))
             else:
                 innerTrigram = {}
-                #print(trigram[2])
                 innerTrigram[trigram[2]] = (sgtTri.prob(trigram))
                 outerTrigram[b] = innerTrigram
 
-        print 'test',outerTrigram
         return outerTrigram
 
 
     #the function that calls for dist and prob of unigram.
     def _setuFdist(self):
         self._uniFdist = self.countProbability(self._uniGram)
-        #self._uniFdist = FreqDist(self._uniGram)
         return self.makeAProbMapUgram()
 
     def makeBigramTree(self, listInput):

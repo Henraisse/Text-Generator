@@ -17,7 +17,7 @@ class Main:
     global templetSentLS
 
     def findTemplet(self, corpusSents):
-        "This function picks a random sentence from corpus, taggs it and returns a list of tags"
+        # "This function picks a random sentence from corpus, taggs it and returns a list of tags"
 
         sentNr = randint(0,(len(corpusSents)-1))
         sampleSent1 = corpusSents[sentNr]
@@ -40,7 +40,7 @@ class Main:
         return tagged_sent_lem, tagged_sent
 
     def randomWordWithRightTag(self, taggedCorpus, tag, tup, bigram):
-        "If there is no word in the list of next usual words (bigram), we pick a word with right TAG"
+        # "If there is no word in the list of next usual words (bigram), we pick a word with right TAG"
         if tup[0] not in bigram:
             return tup
         corpusLength = len(taggedCorpus)
@@ -78,7 +78,7 @@ class Main:
 
 
     def buildSent(self, taggedCorpus, taggedInput, templateSentLem, bigramc, i, j, bool):#tokenzc, word, tag_templet, bigram, trigram, i, j):
-        "This function builds the right side of the sentence"
+        # "This function builds the right side of the sentence"
         #the place where we did put the input is i
         if bool == True:
             i = i+1
@@ -115,9 +115,7 @@ class Main:
         #if no words with the right Tag exist in the list of the words that use to follow
         if len(nwlSameToken) == 0:
             tag = wordTag
-            print('in i random')
             mostProbWord = self.randomWordWithRightTag(taggedCorpus, wordTag,templateSentLem[i], bigramc)
-            print('ut ur random')
             templateSentLem[i] = mostProbWord
 
             return self.buildSent(taggedCorpus, mostProbWord, templateSentLem, bigramc, i, j, bool)
@@ -143,45 +141,35 @@ class Main:
         if i >= len(templateSentLem):
             return templateSentLem
 
-        #print 'i bygg hoger', thisElem, nextElem
-
         if first == True:
             thisElem = templateSentLem[i-1]
             nextElem = templateSentLem[i]
             listToSend = [thisElem,nextElem]
             m = 1
-            while nextElem[0] not in bigramc and (m+i)<len(templateSentLem):#in stopwords.words('english') and (m+i)<len(templateSentLem):
+            while nextElem[0] not in bigramc and (m+i)<=len(templateSentLem):#in stopwords.words('english') and (m+i)<len(templateSentLem):
                 nextElem = templateSentLem[i+m]
                 listToSend.append(nextElem)
                 m = m+1
-            print thisElem, 'thisELement'
-            print listToSend, 'list to send'
-            print(m)
             putThisBack = self.buildSent(taggedCorpus, thisElem, listToSend, bigramc, m-1, j, rl)
             n = 0
-            print 'put this back ', putThisBack
             for a in putThisBack:
                 templateSentLem[i+n-1] = a
                 n = n+1
-            print 'efter bi gram', templateSentLem
             taggedTuple = [thisElem,putThisBack[-1]]
             return self.buildSentTri(taggedCorpus, taggedTuple, templateSentLem, bigramc, trigram, i+n-2, j, False, rl)
 
         #if templateSentLem[i] in stopwords.words('english'):
-        print 'jag kan false'
         d = templateSentLem[i-1]
         if d[0] not in bigramc:
-            print d[0], 'finns inte i bigram'
             return self.buildSentTri(taggedCorpus,taggedTuple , templateSentLem, bigramc, trigram, i, j, False, rl)
 
         else:
             t1 = taggedTuple[0]
             t2 = taggedTuple[1]
             tup = (t1[0],t2[0])
-            print tup, 'kollar om den har efterfoljare'
             nwlSameToken = []
         if tup in trigram:
-            print 'JAG AR HAR!!!'
+            print 'THIS EXISTS IN TRIGRAM R', tup
             nextWordList = trigram[tup]
             #get the inner dictionary for the input word
             for w in nextWordList:
@@ -189,7 +177,6 @@ class Main:
                 g = templateSentLem[i]
                 if pos_tag(w[0]) == g[1]:
                     nwlSameToken.append(w)
-            print 'alla efterfoljare', nwlSameToken
         else:
             #todo, This should never happen, all theh words from input are in corpus
             return self.buildSentTri(taggedCorpus,taggedTuple[1], templateSentLem, bigramc, trigram, i-1, j, True,rl)
@@ -218,7 +205,6 @@ class Main:
         i = i-1
         #basecase, if the input is in the end of the template
         if i <= -1:
-            print(templateSentLem)
             return templateSentLem
 
 
@@ -230,40 +216,33 @@ class Main:
             listToSend = [nextElem, thisElem]
             m = 1
             while nextElem[0] not in bigramBackW and (i-m)>=0:
-                print 'jag ar stopord eller nat'
                 listToSend = [templateSentLem[i-m]]+ listToSend
                 nextElem = templateSentLem[i-m]
                 m = m+1
-            print 'nu skickar jag till bigram', listToSend
             putThisBack = self.buildSent(taggedCorpus, thisElem, listToSend, bigramBackW, 1, j, rl)
             n = 0
-            print 'put this back ', putThisBack
             for a in putThisBack:
                 templateSentLem[i-m+n+1] = a
                 n = n+1
-            print 'efter bi gram', templateSentLem
             taggedTuple = [thisElem,putThisBack[-1]]
             return self.buildSentTriLeft(taggedCorpus,taggedTuple , templateSentLem, bigramBackW, trigramBackW, i-n+2, j, False, rl)
 
 
         wordTupBefTuple = templateSentLem[i]
         if wordTupBefTuple[0] not in bigramBackW:#stopwords.words('english'):
-            print 'not in bigram'
             return self.buildSentTriLeft(taggedCorpus, taggedTuple , templateSentLem, bigramBackW, trigramBackW, i, j, False, rl)
 
         else:
-            print 'finns i bigram'
             t1 = taggedTuple[0]
             t2 = taggedTuple[1]
             tup = (t1[0],t2[0])
             nwlSameToken = []
         if tup in trigramBackW:
-            print 'JAG AR HAR!!!22222'
+            print 'THIS EXISTS IN TRIGRAM', tup
             nextWordList = trigramBackW[tup]
 
             #get the inner dictionary for the input word
             for w in nextWordList:
-                print 'JAg kollar i next word list'
                 #print w, 'finns i listan'
                 g = templateSentLem[i]
                 if pos_tag(w[0]) == g[1]:
@@ -273,7 +252,6 @@ class Main:
             return self.buildSentTriLeft(taggedCorpus, taggedTuple[1] , templateSentLem, bigramBackW, trigramBackW, i+1, j, True, rl)
 
         if len(nwlSameToken) == 0:
-            print 'jag har inga efterfoljare'
             return self.buildSentTriLeft(taggedCorpus, taggedTuple[1], templateSentLem, bigramBackW, trigramBackW, i+1, j, True, rl)
 
         #If there are words and we choose the most probable one
@@ -290,7 +268,7 @@ class Main:
         return templateSentLem
 
 def main():
-    c = io.open('ourcorpus.txt', mode='r', encoding='utf-8')
+    c = io.open('10k.txt', mode='r', encoding='utf-8')
     corpus = c.read()
     m = Main()
 
@@ -349,8 +327,7 @@ def main():
         #Stemming
         stemmedInput = tmr.lemText(noStopwordsInput)
 
-        print(stemmedInput)
-        if stemmedInput[0] in bigramc:
+        if (len(stemmedInput) > 0) and (stemmedInput[0] in bigramc):
             a = False
         if a == True:
             print 'This is not a word that exist in corpus'
@@ -379,25 +356,25 @@ def main():
             print('Your input data is:')
             print(taggedInput)
 
-            #put the input on the right place in the templet
+            # put the input on the right place in the templet
             templateSentLem, templateSent, i = m.fillInTheInput(inputTag, templateSentLem, templateSent, corpusSents, taggedInput)
-            print 'template sent with wirst word in it', templateSentLem
+            # print 'template sent with first word in it', templateSentLem
 
 
-            #build the part of sentence that comes after the input word
-            #rightSent = m.buildSent(taggedCorpus, taggedInput, templateSentLem, bigramc, i, -1, True)
-            #resultSent = m.buildSent(taggedCorpus, taggedInput, rightSent, bigramBackW, i, -1, False)
+            # build the part of sentence that comes after the input word
+            # rightSent = m.buildSent(taggedCorpus, taggedInput, templateSentLem, bigramc, i, -1, True)
+            # resultSent = m.buildSent(taggedCorpus, taggedInput, rightSent, bigramBackW, i, -1, False)
 
             resultTriGram = m.buildSentTri(taggedCorpus, taggedInput, templateSentLem, bigramc, trigram, i, -1, True , True)
             resultTriGram = m.buildSentTriLeft(taggedCorpus, taggedInput, resultTriGram, bigramBackW, trigramBackW, i, -1, True, False) #TODO KO IHaG MIG
 
 
-            print 'Templet', templateSent#resultSent
+            print 'Templet: '#, templateSent#resultSent
             for tuple in templateSent:#resultSent:
                 sys.stdout.write(tuple[0])
                 sys.stdout.write(" ")
 
-            print '\nThe Result', resultTriGram#resultSent
+            print '\nThe Result: '#, resultTriGram#resultSent
             for tuple in resultTriGram:#resultSent:
                 sys.stdout.write(tuple[0])
                 sys.stdout.write(" ")

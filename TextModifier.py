@@ -16,7 +16,6 @@ class TextModifier():
         tokenz = tokenizer.tokenize(text)
 
         return tokenz
-        #return text2
 
     def lemText(self, textInputs):
         #Lematisation of the data using WordNetLemmatizer algorithm
@@ -28,10 +27,7 @@ class TextModifier():
         wnl = WordNetLemmatizer()
         lemText = [wnl.lemmatize(textInput) for textInput in textInputs]
         return lemText
+
     def removeStopWords(self, textInputs):
         filtered_words = [word for word in textInputs if word not in stopwords.words('english')]
         return filtered_words
-
-    #def lowercase(self, textInput):
-        #low = [word.lower() for word in textInput]
-        #return low
