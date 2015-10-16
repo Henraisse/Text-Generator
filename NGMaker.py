@@ -55,6 +55,7 @@ class NGMaker():
 
         for trigram in trigramFreq:
             b = trigram[0:2]
+            #print b
             if b in outerTrigram:
                 innerTrigram = outerTrigram[b]
                 innerTrigram[trigram[2]] = (sgtTri.prob(trigram))
@@ -64,6 +65,7 @@ class NGMaker():
                 innerTrigram[trigram[2]] = (sgtTri.prob(trigram))
                 outerTrigram[b] = innerTrigram
 
+        print 'test',outerTrigram
         return outerTrigram
 
 
